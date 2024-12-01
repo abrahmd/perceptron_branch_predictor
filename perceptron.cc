@@ -11,6 +11,10 @@ extern "C" {
 
 #define WEIGHT_INIT_VALUE 0
 #define DEBUG(proc_id, args...) _DEBUG(proc_id, DEBUG_BP_DIR, ##args)
+#define SAT_INC_MIN_MAX(val, inc, min, max) \
+    ((val) + (inc) > (max) ? (max) : \
+     (val) + (inc) < (min) ? (min) : \
+     (val) + (inc))
 
 namespace {
 
