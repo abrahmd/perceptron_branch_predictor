@@ -31,9 +31,14 @@ struct Perceptron_State {
 
 std::vector<Perceptron_State> perceptron_state_all_cores;
 
+// uns32 get_table_index(const Addr addr) {
+//   const uns32 cooked_addr = (addr >> 2) & N_BIT_MASK(HIST_LENGTH);
+//   return cooked_addr;
+// }
+
 uns32 get_table_index(const Addr addr) {
   const uns32 cooked_addr = (addr >> 2) & N_BIT_MASK(HIST_LENGTH);
-  return cooked_addr;
+  return cooked_addr % PERCEPTRON_TABLE_SIZE;
 }
 
 int compute_output(const Perceptron_Entry& entry, const uns32 hist) {
@@ -68,7 +73,7 @@ void train_perceptron(Perceptron_Entry& entry, const uns32 hist, bool outcome) {
 void bp_perceptron_init() {
   perceptron_state_all_cores.resize(NUM_CORES);
   for(auto& perceptron_state : perceptron_state_all_cores) {
-    perceptron_state.table.resize(1 << HIST_LENGTH);
+    perceptron_state.table.resize(PERCEPTRON_TABLE_SIZE);
     for(auto& entry : perceptron_state.table) {
       entry.weights.resize(HIST_LENGTH, WEIGHT_INIT_VALUE);
       entry.bias = WEIGHT_INIT_VALUE;
