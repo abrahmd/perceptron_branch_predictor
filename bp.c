@@ -61,6 +61,7 @@
 
 /*Perceptron header file*/
 #include "bp/perceptron.h"
+#define USE_PERCEPTRON_BP TRUE
 
 /******************************************************************************/
 /* include the table of possible branch predictors */
@@ -267,7 +268,8 @@ void init_bp_data(uns8 proc_id, Bp_Data* bp_data) {
   memset(bp_data, 0, sizeof(Bp_Data));
 
   /*Perceptron init*/
-  if (PERCEPTRON_BP) {
+  if (USE_PERCEPTRON_BP) {
+    printf("---------------\n using preceptron! \n ---------------\n");
     bp_perceptron_init();
   }
 
@@ -510,7 +512,7 @@ Addr bp_predict_op(Bp_Data* bp_data, Op* op, uns br_num, Addr fetch_addr) {
         ASSERT(op->proc_id, !PERFECT_NT_BTB); //currently not supported
 
         /*Perceptron predict*/
-        if (PERCEPTRON_BP) {
+        if (USE_PERCEPTRON_BP) {
           op->oracle_info.pred = bp_perceptron_pred(op);
         } else {
           op->oracle_info.pred = bp_data->bp->pred_func(op);
@@ -1069,7 +1071,7 @@ void bp_resolve_op(Bp_Data* bp_data, Op* op) {
   }
     
   /*Perceptron update*/
-  if (PERCEPTRON_BP) {
+  if (USE_PERCEPTRON_BP) {
     bp_perceptron_update(op);
   } else {
     bp_data->bp->update_func(op);

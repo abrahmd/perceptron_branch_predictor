@@ -49,9 +49,6 @@
 
 */
 
-/*perceptron bp*/
-DEF_PARAM(  use_perceptron_bp         , USE_PERCEPTRON_BP         , Flag    , Flag       , FALSE      ,        )
-
 DEF_PARAM(  perfect_bp                , PERFECT_BP                , Flag    , Flag       , FALSE      ,        )
 DEF_PARAM(  perfect_btb               , PERFECT_BTB               , Flag    , Flag       , FALSE      ,        )
 DEF_PARAM(  perfect_ibp               , PERFECT_IBP               , Flag    , Flag       , FALSE      ,        )
