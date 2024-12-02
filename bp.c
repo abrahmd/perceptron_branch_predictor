@@ -61,7 +61,7 @@
 
 /*Perceptron header file*/
 #include "bp/perceptron.h"
-#define USE_PERCEPTRON_BP TRUE
+#define USE_PERCEPTRON_BP FALSE
 
 /******************************************************************************/
 /* include the table of possible branch predictors */
