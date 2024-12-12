@@ -31,38 +31,31 @@ struct Perceptron_State {
 
 std::vector<Perceptron_State> perceptron_state_all_cores;
 
-// uns32 get_table_index(const Addr addr) {
-//   const uns32 cooked_addr = (addr >> 2) & N_BIT_MASK(HIST_LENGTH);
-//   return cooked_addr;
-// }
-
 uns32 get_table_index(const Addr addr) {
-  const uns32 cooked_addr = (addr >> 2) & N_BIT_MASK(HIST_LENGTH);
+  const uns32 cooked_addr = addr >> 2;
   return cooked_addr % PERCEPTRON_TABLE_SIZE;
 }
 
-int compute_output(const Perceptron_Entry& entry, const uns32 hist) {
+int compute_output(const Perceptron_Entry& entry, const uns64 hist) {
   int sum = entry.bias;
-  const uns32 masked_hist = hist >> (32 - HIST_LENGTH);
   
   for(size_t i = 0; i < HIST_LENGTH; i++) {
-    const int history_bit = (masked_hist >> i) & 0x1;
+    const int history_bit = (hist >> i) & 0x1;
     const int x = 2 * history_bit - 1; 
     sum += x * entry.weights[i];
   }
   return sum;
 }
 
-void train_perceptron(Perceptron_Entry& entry, const uns32 hist, bool outcome) {
+void train_perceptron(Perceptron_Entry& entry, const uns64 hist, bool outcome) {
   const int y = outcome ? 1 : -1;
-  const uns32 masked_hist = hist >> (32 - HIST_LENGTH);
   
   // Update bias
   entry.bias = SAT_INC_MIN_MAX(entry.bias, y, -128, 127);
   
   // Update weights
   for(size_t i = 0; i < HIST_LENGTH; i++) {
-    const int history_bit = (masked_hist >> i) & 0x1;
+    const int history_bit = (hist >> i) & 0x1;
     const int x = 2 * history_bit - 1;
     entry.weights[i] = SAT_INC_MIN_MAX(entry.weights[i], x * y, -128, 127);
   }
@@ -86,7 +79,7 @@ uns8 bp_perceptron_pred(Op* op) {
   const auto& perceptron_state = perceptron_state_all_cores.at(proc_id);
   
   const Addr  addr = op->oracle_info.pred_addr;
-  const uns32 hist = op->oracle_info.pred_global_hist;
+  const uns64 hist = op->oracle_info.pred_global_hist;
   const uns32 table_index = get_table_index(addr);
   const int   output = compute_output(perceptron_state.table[table_index], hist);
   const uns8  pred = output >= 0 ? 1 : 0;
@@ -108,7 +101,7 @@ void bp_perceptron_update(Op* op) {
   auto& perceptron_state = perceptron_state_all_cores.at(proc_id);
   
   const Addr  addr = op->oracle_info.pred_addr;
-  const uns32 hist = op->oracle_info.pred_global_hist;
+  const uns64 hist = op->oracle_info.pred_global_hist;
   const uns32 table_index = get_table_index(addr);
   const bool  outcome = op->oracle_info.dir;
 
